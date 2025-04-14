@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/usuario_controller.dart';
 import '../models/usuario.dart';
+import '../screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -53,6 +54,12 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Login realizado com sucesso!')));
+
+    // Navega para a HomeScreen substituindo a tela atual (LoginScreen)
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomeScreen()),
+    );
   }
 
   void _mostrarErro(String mensagem) {
