@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/json_store_service.dart';
 
 class FormUsuario extends StatefulWidget {
   const FormUsuario({super.key});
@@ -14,6 +15,29 @@ class _FormUsuarioState extends State<FormUsuario> {
   final nomeController = TextEditingController();
   final senhaController = TextEditingController();
 
+  void _salvarUsuario() async {
+    if (_formKey.currentState!.validate()) {
+      final novoUsuario = {
+        'id': idController.text,
+        'nome': nomeController.text,
+        'senha': senhaController.text,
+      };
+
+      final usuarios = await JsonStorageService.readData('usuarios');
+      usuarios.add(novoUsuario);
+      await JsonStorageService.writeData('usuarios', usuarios);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuário salvo com sucesso!')),
+      );
+
+      _formKey.currentState!.reset();
+      idController.clear();
+      nomeController.clear();
+      senhaController.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,29 +51,34 @@ class _FormUsuarioState extends State<FormUsuario> {
               TextFormField(
                 controller: idController,
                 decoration: const InputDecoration(labelText: 'ID *'),
-                validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                validator:
+                    (value) =>
+                        value == null || value.isEmpty
+                            ? 'Campo obrigatório'
+                            : null,
               ),
               TextFormField(
                 controller: nomeController,
                 decoration: const InputDecoration(labelText: 'Nome *'),
-                validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                validator:
+                    (value) =>
+                        value == null || value.isEmpty
+                            ? 'Campo obrigatório'
+                            : null,
               ),
               TextFormField(
                 controller: senhaController,
                 obscureText: true,
                 decoration: const InputDecoration(labelText: 'Senha *'),
-                validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                validator:
+                    (value) =>
+                        value == null || value.isEmpty
+                            ? 'Campo obrigatório'
+                            : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Aqui você pode criar o objeto Usuario e salvar
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Usuário salvo com sucesso!')),
-                    );
-                  }
-                },
+                onPressed: _salvarUsuario,
                 child: const Text('Salvar Usuário'),
               ),
             ],

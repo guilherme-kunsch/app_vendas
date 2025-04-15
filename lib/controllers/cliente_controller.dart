@@ -1,5 +1,5 @@
 import '../models/cliente.dart';
-import '../services/json_storage_service.dart';
+import '../services/json_store_service.dart';
 
 class ClienteController {
   List<Cliente> clientes = [];

@@ -28,7 +28,6 @@ class JsonStorageService {
     }
   }
 
-  /// Escreve dados em um arquivo JSON
   static Future<void> writeData(String fileName, List<dynamic> data) async {
     try {
       final file = await _getFile(fileName);
