@@ -27,8 +27,8 @@ Aplicativo desenvolvido como atividade para a matéria de **Aplicativos Mobile**
 ![Tela de Login](./assets/tela_login.jpeg)
 ![Tela Inicial](./assets/tela_inicial.jpeg)
 ![Cadastro de Usuários](./assets/cadastro_usuario.jpeg)
-![Cadastro de Produtos](./assets/cadastro_produto.jpeg.jpeg)
-![Cadastro de Clientes](./assets/cadastro_cliente.jpeg.jpeg)
+![Cadastro de Produtos](./assets/cadastro_produto.jpeg)
+![Cadastro de Clientes](./assets/cadastro_cliente.jpeg)
 
 ### Pré-requisitos
 - Ter o [Flutter SDK](https://flutter.dev/docs/get-started/install) instalado.
