@@ -1,5 +1,5 @@
 import '../models/usuario.dart';
-import '../services/json_store_service.dart';
+import '../services/storage_service.dart';
 import 'package:uuid/uuid.dart';
 
 class UsuarioController {
@@ -8,13 +8,13 @@ class UsuarioController {
   final String _arquivo = 'usuarios';
 
   Future<void> carregarUsuarios() async {
-    final data = await JsonStorageService.readData(_arquivo);
+    final data = await StorageService.readData(_arquivo);
     usuarios = data.map((e) => Usuario.fromJson(e)).toList();
   }
 
   Future<void> salvarUsuarios() async {
     final data = usuarios.map((u) => u.toJson()).toList();
-    await JsonStorageService.writeData(_arquivo, data);
+    await StorageService.writeData(_arquivo, data);
   }
 
   Future<void> adicionarUsuario(String nome, String senha) async {

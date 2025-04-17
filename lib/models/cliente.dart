@@ -25,33 +25,31 @@ class Cliente {
     this.uf,
   });
 
-  factory Cliente.fromJson(Map<String, dynamic> json) {
-    return Cliente(
-      id: json['id'],
-      nome: json['nome'],
-      tipo: json['tipo'],
-      documento: json['documento'],
-      email: json['email'],
-      telefone: json['telefone'],
-      cep: json['cep'],
-      endereco: json['endereco'],
-      bairro: json['bairro'],
-      cidade: json['cidade'],
-      uf: json['uf'],
-    );
-  }
+  factory Cliente.fromJson(Map<String, dynamic> json) => Cliente(
+    id: json['id'],
+    nome: json['nome'],
+    tipo: json['tipo'],
+    documento: json['documento'],
+    email: json['email'],
+    telefone: json['telefone'],
+    cep: json['cep'],
+    endereco: json['endereco'],
+    bairro: json['bairro'],
+    cidade: json['cidade'],
+    uf: json['uf'],
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'nome': nome,
-        'tipo': tipo,
-        'documento': documento,
-        'email': email,
-        'telefone': telefone,
-        'cep': cep,
-        'endereco': endereco,
-        'bairro': bairro,
-        'cidade': cidade,
-        'uf': uf,
-      };
+    'id': id,
+    'nome': nome,
+    'tipo': tipo,
+    'documento': documento,
+    'email': email,
+    'telefone': telefone,
+    'cep': cep,
+    'endereco': endereco,
+    'bairro': bairro,
+    'cidade': cidade,
+    'uf': uf,
+  };
 }

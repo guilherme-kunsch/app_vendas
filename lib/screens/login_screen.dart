@@ -4,6 +4,8 @@ import '../models/usuario.dart';
 import '../screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -51,61 +53,83 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _navegarParaHome() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Login realizado com sucesso!')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Login realizado com sucesso!')),
+    );
 
-    // Navega para a HomeScreen substituindo a tela atual (LoginScreen)
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
   }
 
   void _mostrarErro(String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(mensagem),
+        backgroundColor: const Color(0xFFDC3002),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     if (_carregando) {
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: _nomeController,
-                decoration: InputDecoration(labelText: 'Usuário'),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Informe o nome'
-                            : null,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _senhaController,
-                decoration: InputDecoration(labelText: 'Senha'),
-                obscureText: true,
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Informe a senha'
-                            : null,
-              ),
-              SizedBox(height: 24),
-              ElevatedButton(onPressed: _fazerLogin, child: Text('Entrar')),
-            ],
+      appBar: AppBar(title: const Text('Login')),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                // Logo central
+                Image.asset('assets/logo_mastigadores.png', height: 180),
+                const SizedBox(height: 32),
+
+                // Campos
+                TextFormField(
+                  controller: _nomeController,
+                  decoration: const InputDecoration(labelText: 'Usuário'),
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Informe o nome'
+                              : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _senhaController,
+                  decoration: const InputDecoration(labelText: 'Senha'),
+                  obscureText: true,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Informe a senha'
+                              : null,
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _fazerLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFDC3002),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Entrar', style: TextStyle(fontSize: 16)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
