@@ -3,6 +3,7 @@ import '../controllers/cliente_controller.dart';
 import '../models/cliente.dart';
 import 'form_client.dart';
 import 'home_screen.dart';
+import '../components/drawer_menu.dart';
 
 class ListarClientesScreen extends StatefulWidget {
   const ListarClientesScreen({super.key});
@@ -78,28 +79,13 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
     }
   }
 
-  void voltarParaHome() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final clientes = controller.clientes;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Clientes Cadastrados'),
-        actions: [
-          IconButton(
-            onPressed: voltarParaHome,
-            icon: const Icon(Icons.home),
-            tooltip: 'Voltar para Home',
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Clientes Cadastrados')),
+      drawer: buildDrawer(context),
       body:
           clientes.isEmpty
               ? const Center(child: Text('Nenhum cliente cadastrado.'))

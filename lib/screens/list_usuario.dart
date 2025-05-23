@@ -3,6 +3,7 @@ import '../controllers/usuario_controller.dart';
 import '../models/usuario.dart';
 import 'form_usuario.dart';
 import 'home_screen.dart';
+import '../components/drawer_menu.dart';
 
 class ListarUsuariosScreen extends StatefulWidget {
   const ListarUsuariosScreen({super.key});
@@ -75,28 +76,13 @@ class _ListarUsuariosScreenState extends State<ListarUsuariosScreen> {
     }
   }
 
-  void voltarParaHome() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final usuarios = controller.usuarios;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Usuários Cadastrados'),
-        actions: [
-          IconButton(
-            onPressed: voltarParaHome,
-            icon: const Icon(Icons.home),
-            tooltip: 'Voltar para Home',
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Usuários Cadastrados')),
+      drawer: buildDrawer(context),
       body:
           usuarios.isEmpty
               ? const Center(child: Text('Nenhum usuário cadastrado.'))

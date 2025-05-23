@@ -48,9 +48,9 @@ class _FormUsuarioState extends State<FormUsuario> {
     }
   }
 
-  Widget _input({
-    required String label,
-    required TextEditingController controller,
+  Widget _input(
+    String label,
+    TextEditingController controller, {
     bool isPassword = false,
   }) {
     return Padding(
@@ -88,30 +88,42 @@ class _FormUsuarioState extends State<FormUsuario> {
           key: _formKey,
           child: Column(
             children: [
-              _input(label: 'Nome *', controller: nomeController),
-              _input(
-                label: 'Senha *',
-                controller: senhaController,
-                isPassword: true,
-              ),
+              _input('Nome *', nomeController),
+              _input('Senha *', senhaController, isPassword: true),
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: salvar,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFDC3002),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: salvar,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC3002),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        isEdicao ? 'Atualizar Usuário' : 'Salvar Usuário',
+                      ),
                     ),
                   ),
-                  child: Text(
-                    isEdicao ? 'Atualizar Usuário' : 'Salvar Usuário',
-                    style: const TextStyle(fontSize: 16),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFDC3002)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),

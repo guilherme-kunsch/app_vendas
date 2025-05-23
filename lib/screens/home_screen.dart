@@ -9,6 +9,7 @@ import '../controllers/cliente_controller.dart';
 import '../controllers/produto_controller.dart';
 import '../controllers/usuario_controller.dart';
 import 'login_screen.dart';
+import '../components/drawer_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -54,17 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bem vindo(a)'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sair',
-            onPressed: _logout,
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Bem vindo(a)'), centerTitle: true),
+      drawer: buildDrawer(context),
       body: RefreshIndicator(
         onRefresh: _carregarDados,
         child: SingleChildScrollView(

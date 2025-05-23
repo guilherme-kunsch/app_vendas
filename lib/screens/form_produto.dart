@@ -74,9 +74,8 @@ class _FormProdutoState extends State<FormProduto> {
   Widget _input({
     required String label,
     required TextEditingController controller,
-    bool obrigatorio = false,
     TextInputType? teclado,
-    String? Function(String?)? validator,
+    bool obrigatorio = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -93,11 +92,12 @@ class _FormProdutoState extends State<FormProduto> {
           ),
         ),
         validator:
-            validator ??
-            (obrigatorio
+            obrigatorio
                 ? (value) =>
-                    value == null || value.isEmpty ? 'Campo obrigatório' : null
-                : null),
+                    value == null || value.trim().isEmpty
+                        ? 'Campo obrigatório'
+                        : null
+                : null,
       ),
     );
   }
@@ -130,34 +130,19 @@ class _FormProdutoState extends State<FormProduto> {
                 label: 'Quantidade em Estoque *',
                 controller: qtdEstoqueController,
                 teclado: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty)
-                    return 'Campo obrigatório';
-                  if (int.tryParse(value) == null) return 'Número inválido';
-                  return null;
-                },
+                obrigatorio: true,
               ),
               _input(
                 label: 'Preço de Venda *',
                 controller: precoVendaController,
                 teclado: const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) {
-                  if (value == null || value.isEmpty)
-                    return 'Campo obrigatório';
-                  if (double.tryParse(value) == null) return 'Número inválido';
-                  return null;
-                },
+                obrigatorio: true,
               ),
               _input(
                 label: 'Status (0 - Ativo, 1 - Inativo) *',
                 controller: statusController,
                 teclado: TextInputType.number,
-                validator: (value) {
-                  if (value == null || (value != '0' && value != '1')) {
-                    return 'Informe 0 ou 1';
-                  }
-                  return null;
-                },
+                obrigatorio: true,
               ),
               _input(
                 label: 'Custo',
@@ -165,28 +150,45 @@ class _FormProdutoState extends State<FormProduto> {
                 teclado: const TextInputType.numberWithOptions(decimal: true),
               ),
               _input(
-                label: 'Código de Barras *',
+                label: 'Código de Barras',
                 controller: codigoBarraController,
-                obrigatorio: true,
               ),
+
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _salvarProduto,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFDC3002),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _salvarProduto,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC3002),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        isEdicao ? 'Atualizar Produto' : 'Salvar Produto',
+                      ),
                     ),
                   ),
-                  child: Text(
-                    isEdicao ? 'Atualizar Produto' : 'Salvar Produto',
-                    style: const TextStyle(fontSize: 16),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFDC3002)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),

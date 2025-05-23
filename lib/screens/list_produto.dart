@@ -3,6 +3,7 @@ import '../controllers/produto_controller.dart';
 import '../models/produto.dart';
 import 'form_produto.dart';
 import 'home_screen.dart';
+import '../components/drawer_menu.dart';
 
 class ListarProdutosScreen extends StatefulWidget {
   const ListarProdutosScreen({super.key});
@@ -75,28 +76,13 @@ class _ListarProdutosScreenState extends State<ListarProdutosScreen> {
     }
   }
 
-  void voltarParaHome() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final produtos = controller.produtos;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Produtos Cadastrados'),
-        actions: [
-          IconButton(
-            onPressed: voltarParaHome,
-            icon: const Icon(Icons.home),
-            tooltip: 'Voltar para Home',
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Produtos Cadastrados')),
+      drawer: buildDrawer(context),
       body:
           produtos.isEmpty
               ? const Center(child: Text('Nenhum produto cadastrado.'))
