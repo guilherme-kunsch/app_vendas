@@ -5,11 +5,12 @@ import 'form_usuario.dart';
 import 'list_client.dart';
 import 'list_produto.dart';
 import 'list_usuario.dart';
+import 'list_pedidos.dart'; // <-- Import da tela de pedidos
 import '../controllers/cliente_controller.dart';
 import '../controllers/produto_controller.dart';
 import '../controllers/usuario_controller.dart';
 import 'login_screen.dart';
-import '../components/drawer_menu.dart';
+import '../components/drawer_menu.dart'; // <-- Arquivo Drawer, recomendado
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,52 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Bem vindo(a)'), centerTitle: true),
-      drawer: buildDrawer(context),
-      body: RefreshIndicator(
-        onRefresh: _carregarDados,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _resumoCard('Produtos', totalProdutos, Icons.inventory_2),
-                  _resumoCard('Clientes', totalClientes, Icons.people),
-                  _resumoCard('Usuários', totalUsuarios, Icons.person),
-                ],
-              ),
-              const SizedBox(height: 32),
-              _menuButton(
-                'Produtos',
-                Icons.inventory_2_outlined,
-                const ListarProdutosScreen(),
-              ),
-              const SizedBox(height: 16),
-              _menuButton(
-                'Clientes',
-                Icons.people_outline,
-                const ListarClientesScreen(),
-              ),
-              const SizedBox(height: 16),
-              _menuButton(
-                'Usuários',
-                Icons.person_outline,
-                const ListarUsuariosScreen(),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _resumoCard(String label, int total, IconData icon) {
     return Expanded(
       child: Container(
@@ -130,12 +85,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () async {
-          await Navigator.push(
+        onPressed: () {
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => screen),
-          );
-          _carregarDados(); // Atualiza ao voltar
+          ).then((_) => _carregarDados()); // <-- Atualiza ao voltar
         },
         icon: Icon(icon, size: 24),
         label: Padding(
@@ -147,6 +101,69 @@ class _HomeScreenState extends State<HomeScreen> {
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Bem vindo(a)'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: _logout,
+          ),
+        ],
+      ),
+      drawer: const DrawerCustom(), // <-- Drawer separado
+      body: RefreshIndicator(
+        onRefresh: _carregarDados,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Resumo
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _resumoCard('Produtos', totalProdutos, Icons.inventory_2),
+                  _resumoCard('Clientes', totalClientes, Icons.people),
+                  _resumoCard('Usuários', totalUsuarios, Icons.person),
+                ],
+              ),
+              const SizedBox(height: 32),
+              // Navegação
+              _menuButton(
+                'Produtos',
+                Icons.inventory_2_outlined,
+                const ListarProdutosScreen(),
+              ),
+              const SizedBox(height: 16),
+              _menuButton(
+                'Clientes',
+                Icons.people_outline,
+                const ListarClientesScreen(),
+              ),
+              const SizedBox(height: 16),
+              _menuButton(
+                'Usuários',
+                Icons.person_outline,
+                const ListarUsuariosScreen(),
+              ),
+              const SizedBox(height: 16),
+              _menuButton(
+                'Pedidos',
+                Icons.receipt_long,
+                const ListarPedidosScreen(),
+              ),
+            ],
           ),
         ),
       ),

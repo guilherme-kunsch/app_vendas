@@ -82,7 +82,7 @@ class _ListarProdutosScreenState extends State<ListarProdutosScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Produtos Cadastrados')),
-      drawer: buildDrawer(context),
+      drawer: DrawerCustom(),
       body:
           produtos.isEmpty
               ? const Center(child: Text('Nenhum produto cadastrado.'))

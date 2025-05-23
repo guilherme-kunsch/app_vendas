@@ -66,25 +66,8 @@ class _CadastroClienteScreenState extends State<CadastroClienteScreen> {
     }
 
     await controller.salvarClientes();
-    if (context.mounted) Navigator.pop(context, true);
-  }
 
-  Widget _input(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: const Color(0xFFF0F1F3),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-        ),
-      ),
-    );
+    if (context.mounted) Navigator.pop(context, true);
   }
 
   @override
@@ -95,56 +78,122 @@ class _CadastroClienteScreenState extends State<CadastroClienteScreen> {
       appBar: AppBar(
         title: Text(isEdit ? 'Editar Cliente' : 'Cadastrar Cliente'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            _input('Nome', nomeController),
-            _input('Tipo (F ou J)', tipoController),
-            _input('Documento', documentoController),
-            _input('Email', emailController),
-            _input('Telefone', telefoneController),
-            _input('CEP', cepController),
-            _input('Endereço', enderecoController),
-            _input('Bairro', bairroController),
-            _input('Cidade', cidadeController),
-            _input('UF', ufController),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: salvar,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFDC3002),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      isEdit ? 'Atualizar Cliente' : 'Salvar Cliente',
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: nomeController,
+                decoration: const InputDecoration(labelText: 'Nome'),
+              ),
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: tipoController,
+                decoration: const InputDecoration(labelText: 'Tipo (F ou J)'),
+              ),
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: documentoController,
+                decoration: const InputDecoration(labelText: 'Documento'),
+              ),
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: telefoneController,
+                decoration: const InputDecoration(labelText: 'Telefone'),
+              ),
+              const SizedBox(height: 12),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: cepController,
+                      decoration: const InputDecoration(labelText: 'CEP'),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFFDC3002)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text('Cancelar'),
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () async {
+                      final cep = cepController.text.trim();
+                      if (cep.isNotEmpty) {
+                        final endereco = await controller.buscarEnderecoPorCEP(
+                          cep,
+                        );
+                        if (endereco != null) {
+                          setState(() {
+                            enderecoController.text = endereco['endereco']!;
+                            bairroController.text = endereco['bairro']!;
+                            cidadeController.text = endereco['cidade']!;
+                            ufController.text = endereco['uf']!;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Endereço carregado com sucesso!'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('CEP não encontrado!'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: enderecoController,
+                decoration: const InputDecoration(labelText: 'Endereço'),
+              ),
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: bairroController,
+                decoration: const InputDecoration(labelText: 'Bairro'),
+              ),
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: cidadeController,
+                decoration: const InputDecoration(labelText: 'Cidade'),
+              ),
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: ufController,
+                decoration: const InputDecoration(labelText: 'UF'),
+              ),
+              const SizedBox(height: 24),
+
+              ElevatedButton(
+                onPressed: salvar,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFDC3002),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-              ],
-            ),
-          ],
+                child: Text(isEdit ? 'Atualizar Cliente' : 'Salvar Cliente'),
+              ),
+            ],
+          ),
         ),
       ),
     );

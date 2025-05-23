@@ -85,7 +85,7 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Clientes Cadastrados')),
-      drawer: buildDrawer(context),
+      drawer: DrawerCustom(),
       body:
           clientes.isEmpty
               ? const Center(child: Text('Nenhum cliente cadastrado.'))

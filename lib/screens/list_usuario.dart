@@ -82,7 +82,7 @@ class _ListarUsuariosScreenState extends State<ListarUsuariosScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Usuários Cadastrados')),
-      drawer: buildDrawer(context),
+      drawer: DrawerCustom(),
       body:
           usuarios.isEmpty
               ? const Center(child: Text('Nenhum usuário cadastrado.'))
