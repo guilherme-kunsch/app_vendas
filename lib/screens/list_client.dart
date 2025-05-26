@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../controllers/cliente_controller.dart';
 import '../models/cliente.dart';
 import 'form_client.dart';
-import 'home_screen.dart';
 import '../components/drawer_menu.dart';
 
 class ListarClientesScreen extends StatefulWidget {
@@ -13,7 +12,8 @@ class ListarClientesScreen extends StatefulWidget {
 }
 
 class _ListarClientesScreenState extends State<ListarClientesScreen> {
-  final controller = ClienteController();
+  final ClienteController controller = ClienteController();
+  List<Cliente> clientes = [];
 
   @override
   void initState() {
@@ -22,11 +22,11 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
   }
 
   Future<void> carregar() async {
-    await controller.loadClientes();
+    clientes = await controller.loadClientes();
     setState(() {});
   }
 
-  void remover(int index) async {
+  void remover(int id) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder:
@@ -47,23 +47,21 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
     );
 
     if (confirm == true) {
-      controller.removerCliente(index);
-      await controller.salvarClientes();
-      setState(() {});
+      await controller.excluirCliente(id);
+      await carregar();
     }
   }
 
-  void editar(int index, Cliente cliente) async {
+  void editar(Cliente cliente) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CadastroClienteScreen(cliente: cliente, index: index),
+        builder: (_) => CadastroClienteScreen(cliente: cliente),
       ),
     );
 
     if (result == true) {
-      await controller.loadClientes();
-      setState(() {});
+      await carregar();
     }
   }
 
@@ -74,18 +72,15 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
     );
 
     if (result == true) {
-      await controller.loadClientes();
-      setState(() {});
+      await carregar();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final clientes = controller.clientes;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Clientes Cadastrados')),
-      drawer: DrawerCustom(),
+      drawer: const DrawerCustom(),
       body:
           clientes.isEmpty
               ? const Center(child: Text('Nenhum cliente cadastrado.'))
@@ -131,10 +126,10 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
                           Icons.delete,
                           color: Color(0xFFDC3002),
                         ),
-                        onPressed: () => remover(index),
+                        onPressed: () => remover(c.id!),
                         tooltip: 'Excluir',
                       ),
-                      onTap: () => editar(index, c),
+                      onTap: () => editar(c),
                     ),
                   );
                 },

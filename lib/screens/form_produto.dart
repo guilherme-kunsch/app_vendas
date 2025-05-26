@@ -13,183 +13,108 @@ class FormProduto extends StatefulWidget {
 
 class _FormProdutoState extends State<FormProduto> {
   final _formKey = GlobalKey<FormState>();
+  final ProdutoController controller = ProdutoController();
 
   final nomeController = TextEditingController();
   final unidadeController = TextEditingController();
   final qtdEstoqueController = TextEditingController();
   final precoVendaController = TextEditingController();
-  final statusController = TextEditingController();
   final custoController = TextEditingController();
   final codigoBarraController = TextEditingController();
+
+  int status = 0;
 
   @override
   void initState() {
     super.initState();
-    final p = widget.produto;
-    if (p != null) {
+    if (widget.produto != null) {
+      final p = widget.produto!;
       nomeController.text = p.nome;
       unidadeController.text = p.unidade;
       qtdEstoqueController.text = p.qtdEstoque.toString();
       precoVendaController.text = p.precoVenda.toString();
-      statusController.text = p.status.toString();
       custoController.text = p.custo?.toString() ?? '';
       codigoBarraController.text = p.codigoBarra;
+      status = p.status;
     }
   }
 
-  void _salvarProduto() async {
+  void salvar() async {
     if (_formKey.currentState!.validate()) {
-      final novoProduto = Produto(
+      final produto = Produto(
         id: widget.produto?.id,
         nome: nomeController.text,
         unidade: unidadeController.text,
         qtdEstoque: int.parse(qtdEstoqueController.text),
         precoVenda: double.parse(precoVendaController.text),
-        status: int.parse(statusController.text),
+        status: status,
         custo:
-            custoController.text.isEmpty
-                ? 0.0
-                : double.parse(custoController.text),
+            custoController.text.isNotEmpty
+                ? double.parse(custoController.text)
+                : null,
         codigoBarra: codigoBarraController.text,
+        dataAlteracao: DateTime.now().toIso8601String(),
       );
 
-      final controller = ProdutoController();
-      await controller.carregarProdutos();
-
-      if (widget.produto != null) {
-        await controller.atualizarProduto(novoProduto);
-      } else {
-        await controller.adicionarProduto(novoProduto);
-      }
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Produto salvo com sucesso!')),
-        );
-        Navigator.pop(context, true);
-      }
+      await controller.salvarProduto(produto);
+      if (context.mounted) Navigator.pop(context, true);
     }
-  }
-
-  Widget _input({
-    required String label,
-    required TextEditingController controller,
-    TextInputType? teclado,
-    bool obrigatorio = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: teclado,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: const Color(0xFFF0F1F3),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-        ),
-        validator:
-            obrigatorio
-                ? (value) =>
-                    value == null || value.trim().isEmpty
-                        ? 'Campo obrigatório'
-                        : null
-                : null,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isEdicao = widget.produto != null;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEdicao ? 'Editar Produto' : 'Cadastrar Produto'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+      appBar: AppBar(title: const Text('Produto')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
-              _input(
-                label: 'Nome *',
+              TextFormField(
                 controller: nomeController,
-                obrigatorio: true,
+                decoration: const InputDecoration(labelText: 'Nome'),
+                validator:
+                    (value) => value!.isEmpty ? 'Campo obrigatório' : null,
               ),
-              _input(
-                label: 'Unidade *',
+              TextFormField(
                 controller: unidadeController,
-                obrigatorio: true,
+                decoration: const InputDecoration(labelText: 'Unidade'),
               ),
-              _input(
-                label: 'Quantidade em Estoque *',
+              TextFormField(
                 controller: qtdEstoqueController,
-                teclado: TextInputType.number,
-                obrigatorio: true,
+                decoration: const InputDecoration(
+                  labelText: 'Quantidade em Estoque',
+                ),
+                keyboardType: TextInputType.number,
               ),
-              _input(
-                label: 'Preço de Venda *',
+              TextFormField(
                 controller: precoVendaController,
-                teclado: const TextInputType.numberWithOptions(decimal: true),
-                obrigatorio: true,
+                decoration: const InputDecoration(labelText: 'Preço de Venda'),
+                keyboardType: TextInputType.number,
               ),
-              _input(
-                label: 'Status (0 - Ativo, 1 - Inativo) *',
-                controller: statusController,
-                teclado: TextInputType.number,
-                obrigatorio: true,
-              ),
-              _input(
-                label: 'Custo',
+              TextFormField(
                 controller: custoController,
-                teclado: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: 'Custo'),
+                keyboardType: TextInputType.number,
               ),
-              _input(
-                label: 'Código de Barras',
+              TextFormField(
                 controller: codigoBarraController,
+                decoration: const InputDecoration(
+                  labelText: 'Código de Barras',
+                ),
               ),
-
-              const SizedBox(height: 24),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _salvarProduto,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDC3002),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        isEdicao ? 'Atualizar Produto' : 'Salvar Produto',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFDC3002)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text('Cancelar'),
-                    ),
-                  ),
+              DropdownButtonFormField<int>(
+                value: status,
+                decoration: const InputDecoration(labelText: 'Status'),
+                items: const [
+                  DropdownMenuItem(value: 0, child: Text('Ativo')),
+                  DropdownMenuItem(value: 1, child: Text('Inativo')),
                 ],
+                onChanged: (value) => setState(() => status = value!),
               ),
+              const SizedBox(height: 20),
+              ElevatedButton(onPressed: salvar, child: const Text('Salvar')),
             ],
           ),
         ),

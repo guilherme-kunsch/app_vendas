@@ -35,13 +35,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _carregarDados() async {
-    await clienteController.loadClientes();
-    await produtoController.carregarProdutos();
+    final clientes = await clienteController.loadClientes();
+    final produtos = await produtoController.listarProdutos();
     await usuarioController.carregarUsuarios();
 
     setState(() {
-      totalClientes = clienteController.clientes.length;
-      totalProdutos = produtoController.produtos.length;
+      totalClientes = clientes.length;
+      totalProdutos = produtos.length;
       totalUsuarios = usuarioController.usuarios.length;
     });
   }

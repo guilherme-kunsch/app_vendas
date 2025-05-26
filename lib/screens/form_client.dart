@@ -4,9 +4,8 @@ import '../models/cliente.dart';
 
 class CadastroClienteScreen extends StatefulWidget {
   final Cliente? cliente;
-  final int? index;
 
-  const CadastroClienteScreen({super.key, this.cliente, this.index});
+  const CadastroClienteScreen({super.key, this.cliente});
 
   @override
   State<CadastroClienteScreen> createState() => _CadastroClienteScreenState();
@@ -41,12 +40,11 @@ class _CadastroClienteScreenState extends State<CadastroClienteScreen> {
       cidadeController.text = widget.cliente!.cidade ?? '';
       ufController.text = widget.cliente!.uf ?? '';
     }
-    controller.loadClientes();
   }
 
   void salvar() async {
     final cliente = Cliente(
-      id: widget.cliente?.id ?? 0,
+      id: widget.cliente?.id,
       nome: nomeController.text,
       tipo: tipoController.text,
       documento: documentoController.text,
@@ -57,15 +55,10 @@ class _CadastroClienteScreenState extends State<CadastroClienteScreen> {
       bairro: bairroController.text,
       cidade: cidadeController.text,
       uf: ufController.text,
+      dataAlteracao: DateTime.now().toIso8601String(),
     );
 
-    if (widget.index != null) {
-      controller.atualizarCliente(widget.index!, cliente);
-    } else {
-      controller.adicionarCliente(cliente);
-    }
-
-    await controller.salvarClientes();
+    await controller.salvarCliente(cliente);
 
     if (context.mounted) Navigator.pop(context, true);
   }

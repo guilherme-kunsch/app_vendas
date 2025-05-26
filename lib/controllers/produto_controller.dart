@@ -1,39 +1,42 @@
 import 'package:uuid/uuid.dart';
 import '../models/produto.dart';
-import '../services/storage_service.dart';
+import '../services/database_helper.dart';
 
 class ProdutoController {
-  List<Produto> produtos = [];
-  final String _arquivo = 'produtos';
+  Future<void> salvarProduto(Produto produto) async {
+    final db = await BancoHelper().db;
+    produto.dataAlteracao = DateTime.now().toIso8601String();
 
-  Future<void> carregarProdutos() async {
-    final data = await StorageService.readData(_arquivo);
-    produtos = data.map((e) => Produto.fromJson(e)).toList();
-  }
+    // Se não tiver ID, gera um novo
+    produto.id ??= const Uuid().v4();
 
-  Future<void> salvarProdutos() async {
-    final data = produtos.map((e) => e.toJson()).toList();
-    await StorageService.writeData(_arquivo, data);
-  }
+    // Verifica se já existe
+    final existe = await db.query(
+      'Produto',
+      where: 'id = ?',
+      whereArgs: [produto.id],
+    );
 
-  Future<void> adicionarProduto(Produto produto) async {
-    produto.id = const Uuid().v4();
-    produtos.add(produto);
-    await salvarProdutos();
-  }
-
-  Future<void> atualizarProduto(Produto produtoAtualizado) async {
-    final index = produtos.indexWhere((p) => p.id == produtoAtualizado.id);
-    if (index != -1) {
-      produtos[index] = produtoAtualizado;
-      await salvarProdutos();
+    if (existe.isEmpty) {
+      await db.insert('Produto', produto.toSQL());
+    } else {
+      await db.update(
+        'Produto',
+        produto.toSQL(),
+        where: 'id = ?',
+        whereArgs: [produto.id],
+      );
     }
   }
 
-  Future<void> removerProduto(String? id) async {
-    if (id != null) {
-      produtos.removeWhere((p) => p.id == id);
-      await salvarProdutos();
-    }
+  Future<void> removerProduto(String id) async {
+    final db = await BancoHelper().db;
+    await db.delete('Produto', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<List<Produto>> listarProdutos() async {
+    final db = await BancoHelper().db;
+    final maps = await db.query('Produto');
+    return List.generate(maps.length, (i) => Produto.fromJson(maps[i]));
   }
 }

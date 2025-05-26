@@ -1,43 +1,47 @@
+import '../models/cliente.dart';
+import '../services/database_helper.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../models/cliente.dart';
-import '../services/storage_service.dart';
-
 class ClienteController {
-  List<Cliente> clientes = [];
+  Future<void> salvarCliente(Cliente cliente) async {
+    final db = await BancoHelper().db;
+    cliente.dataAlteracao = DateTime.now().toIso8601String();
 
-  Future<void> loadClientes() async {
-    final data = await StorageService.readData('clientes');
-    clientes = data.map((e) => Cliente.fromJson(e)).toList();
+    if (cliente.id == null) {
+      cliente.id = await db.insert('Cliente', cliente.toSQL());
+    } else {
+      await db.update(
+        'Cliente',
+        cliente.toSQL(),
+        where: 'id = ?',
+        whereArgs: [cliente.id],
+      );
+    }
   }
 
-  void adicionarCliente(Cliente cliente) {
-    cliente.id = clientes.isNotEmpty ? clientes.last.id + 1 : 1;
-    clientes.add(cliente);
+  Future<void> excluirCliente(int id) async {
+    final db = await BancoHelper().db;
+    await db.delete('Cliente', where: 'id = ?', whereArgs: [id]);
   }
 
-  void atualizarCliente(int index, Cliente clienteAtualizado) {
-    clientes[index] = clienteAtualizado;
+  // Renomeado para manter o padrão
+  Future<List<Cliente>> loadClientes() async {
+    final db = await BancoHelper().db;
+    final maps = await db.query('Cliente');
+    return List.generate(maps.length, (i) => Cliente.fromJson(maps[i]));
   }
 
-  void removerCliente(int index) {
-    clientes.removeAt(index);
-  }
-
-  Future<void> salvarClientes() async {
-    final data = clientes.map((c) => c.toJson()).toList();
-    await StorageService.writeData('clientes', data);
-  }
-
-  Future<Map<String, String>?> buscarEnderecoPorCEP(String cep) async {
-    final url = Uri.parse('https://viacep.com.br/ws/$cep/json/');
+  Future<Map<String, dynamic>?> buscarEnderecoPorCEP(String cep) async {
     try {
-      final response = await http.get(url);
+      final response = await http.get(
+        Uri.parse('https://viacep.com.br/ws/$cep/json/'),
+      );
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data.containsKey('erro') && data['erro'] == true) {
-          return null; // CEP não encontrado
+        if (data['erro'] == true) {
+          return null;
         }
         return {
           'endereco': data['logradouro'] ?? '',
@@ -49,6 +53,7 @@ class ClienteController {
         return null;
       }
     } catch (e) {
+      print('Erro ao buscar CEP: $e');
       return null;
     }
   }

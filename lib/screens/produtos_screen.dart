@@ -23,6 +23,8 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   int _status = 0;
   Produto? _produtoSelecionado;
 
+  List<Produto> produtos = [];
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +32,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   }
 
   Future<void> _carregarProdutos() async {
-    await _controller.carregarProdutos();
+    produtos = await _controller.listarProdutos();
     setState(() {});
   }
 
@@ -48,12 +50,13 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                 ? double.parse(_custoController.text)
                 : null,
         codigoBarra: _codigoBarraController.text,
+        dataAlteracao: DateTime.now().toIso8601String(),
       );
 
       if (_produtoSelecionado == null) {
-        await _controller.adicionarProduto(produto);
+        await _controller.salvarProduto(produto);
       } else {
-        await _controller.atualizarProduto(produto);
+        await _controller.salvarProduto(produto);
       }
 
       _limparCampos();
@@ -171,9 +174,9 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
             const Divider(),
             Expanded(
               child: ListView.builder(
-                itemCount: _controller.produtos.length,
+                itemCount: produtos.length,
                 itemBuilder: (_, index) {
-                  final produto = _controller.produtos[index];
+                  final produto = produtos[index];
                   return ListTile(
                     title: Text(produto.nome),
                     subtitle: Text(

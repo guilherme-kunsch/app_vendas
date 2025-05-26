@@ -7,6 +7,7 @@ class Produto {
   int status; // 0 - Ativo, 1 - Inativo
   double? custo;
   String codigoBarra;
+  String dataAlteracao;
 
   Produto({
     this.id,
@@ -15,8 +16,9 @@ class Produto {
     required this.qtdEstoque,
     required this.precoVenda,
     required this.status,
-    required this.custo,
+    this.custo,
     required this.codigoBarra,
+    required this.dataAlteracao,
   });
 
   factory Produto.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class Produto {
       status: json['status'],
       custo: json['custo'] != null ? (json['custo'] as num).toDouble() : null,
       codigoBarra: json['codigoBarra'],
+      dataAlteracao: json['dataAlteracao'],
     );
   }
 
@@ -42,6 +45,21 @@ class Produto {
       'status': status,
       'custo': custo,
       'codigoBarra': codigoBarra,
+      'dataAlteracao': dataAlteracao,
+    };
+  }
+
+  Map<String, dynamic> toSQL() {
+    return {
+      'id': id,
+      'nome': nome,
+      'unidade': unidade,
+      'qtdEstoque': qtdEstoque,
+      'precoVenda': precoVenda,
+      'status': status,
+      'custo': custo,
+      'codigoBarra': codigoBarra,
+      'dataAlteracao': dataAlteracao,
     };
   }
 }

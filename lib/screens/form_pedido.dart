@@ -44,11 +44,10 @@ class _FormPedidoState extends State<FormPedido> {
   }
 
   void carregarDados() async {
-    await clienteController.loadClientes();
     await usuarioController.carregarUsuarios();
+    clientes = await clienteController.loadClientes();
 
     setState(() {
-      clientes = clienteController.clientes;
       usuarios = usuarioController.usuarios;
 
       if (widget.pedido != null) {
@@ -58,7 +57,13 @@ class _FormPedidoState extends State<FormPedido> {
               () =>
                   clientes.isNotEmpty
                       ? clientes.first
-                      : Cliente(id: 0, nome: 'N/A', tipo: 'F', documento: ''),
+                      : Cliente(
+                        id: 0,
+                        nome: 'N/A',
+                        tipo: 'F',
+                        documento: '',
+                        dataAlteracao: DateTime.now().toIso8601String(),
+                      ),
         );
 
         usuarioSelecionado = usuarios.firstWhere(
@@ -161,7 +166,7 @@ class _FormPedidoState extends State<FormPedido> {
 
     final pedido = Pedido(
       id: widget.pedido?.id ?? DateTime.now().millisecondsSinceEpoch,
-      clienteId: clienteSelecionado!.id,
+      clienteId: clienteSelecionado!.id!,
       usuarioId: usuarioSelecionado!.id,
       total: totalItens,
       dataCriacao: DateTime.now(),

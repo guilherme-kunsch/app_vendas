@@ -29,10 +29,8 @@ class _FormPedidoItemState extends State<FormPedidoItem> {
   }
 
   void carregarProdutos() async {
-    await produtoController.carregarProdutos();
+    produtos = await produtoController.listarProdutos();
     setState(() {
-      produtos = produtoController.produtos;
-
       if (widget.item != null) {
         produtoSelecionado = produtos.firstWhere(
           (p) => p.id == widget.item!.id,
