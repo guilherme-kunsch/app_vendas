@@ -45,7 +45,7 @@ class _ClienteScreenState extends State<ClienteScreen> {
         id: _editingCliente?.id,
         nome: _nomeController.text,
         tipo: _tipo,
-        documento: _documentoController.text,
+        cpfCnpj: _documentoController.text,
         email: _emailController.text,
         telefone: _telefoneController.text,
         cep: _cepController.text,
@@ -53,7 +53,7 @@ class _ClienteScreenState extends State<ClienteScreen> {
         bairro: _bairroController.text,
         cidade: _cidadeController.text,
         uf: _ufController.text,
-        dataAlteracao: DateTime.now().toIso8601String(),
+        ultimaAlteracao: DateTime.now().toIso8601String(),
       );
 
       await _controller.salvarCliente(cliente);
@@ -64,7 +64,7 @@ class _ClienteScreenState extends State<ClienteScreen> {
 
   void _editar(Cliente cliente) {
     _nomeController.text = cliente.nome;
-    _documentoController.text = cliente.documento;
+    _documentoController.text = cliente.cpfCnpj;
     _emailController.text = cliente.email ?? '';
     _telefoneController.text = cliente.telefone ?? '';
     _cepController.text = cliente.cep ?? '';
@@ -80,7 +80,7 @@ class _ClienteScreenState extends State<ClienteScreen> {
   }
 
   Future<void> _remover(int id) async {
-    await _controller.excluirCliente(id);
+    await _controller.inativarCliente(id);
     _limpar();
     await _carregarClientes();
   }
@@ -186,7 +186,7 @@ class _ClienteScreenState extends State<ClienteScreen> {
                   return ListTile(
                     title: Text(cliente.nome),
                     subtitle: Text(
-                      '${cliente.tipo == 'F' ? 'CPF' : 'CNPJ'}: ${cliente.documento}',
+                      '${cliente.tipo == 'F' ? 'CPF' : 'CNPJ'}: ${cliente.cpfCnpj}',
                     ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,

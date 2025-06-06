@@ -1,45 +1,48 @@
-import 'package:app_vendas/models/pedido_item.dart';
-import 'package:app_vendas/models/pedido_pagamento.dart';
-
 class Pedido {
-  int id;
-  int clienteId;
-  String usuarioId;
-  double total;
-  DateTime dataCriacao;
-  List<PedidoItem> itens;
-  List<PedidoPagamento> pagamentos;
+  int? id;
+  int idCliente;
+  int idUsuario;
+  double? totalPedido;
+  String ultimaAlteracao;
+  bool isDeleted;
 
   Pedido({
-    required this.id,
-    required this.clienteId,
-    required this.usuarioId,
-    required this.total,
-    required this.dataCriacao,
-    required this.itens,
-    required this.pagamentos,
+    this.id,
+    required this.idCliente,
+    required this.idUsuario,
+    this.totalPedido,
+    required this.ultimaAlteracao,
+    this.isDeleted = false,
   });
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'clienteId': clienteId,
-    'usuarioId': usuarioId,
-    'total': total,
-    'dataCriacao': dataCriacao.toIso8601String(),
-    'itens': itens.map((e) => e.toJson()).toList(),
-    'pagamentos': pagamentos.map((e) => e.toJson()).toList(),
-  };
+  factory Pedido.fromJson(Map<String, dynamic> json) {
+    return Pedido(
+      id: json['id'],
+      idCliente: int.parse(json['idCliente'].toString()),
+      idUsuario: int.parse(json['idUsuario'].toString()),
+      totalPedido: json['totalPedido'],
+      ultimaAlteracao: json['ultimaAlteracao'] ?? '',
+      isDeleted: (json['isDeleted'] ?? 0).toString() == '1',
+    );
+  }
 
-  factory Pedido.fromJson(Map<String, dynamic> json) => Pedido(
-    id: json['id'],
-    clienteId: json['clienteId'],
-    usuarioId: json['usuarioId'],
-    total: json['total'],
-    dataCriacao: DateTime.parse(json['dataCriacao']),
-    itens: (json['itens'] as List).map((e) => PedidoItem.fromJson(e)).toList(),
-    pagamentos:
-        (json['pagamentos'] as List)
-            .map((e) => PedidoPagamento.fromJson(e))
-            .toList(),
-  );
+  Map<String, dynamic> toSQL() {
+    return {
+      'id': id,
+      'idCliente': idCliente,
+      'idUsuario': idUsuario,
+      'totalPedido': totalPedido,
+      'ultimaAlteracao': ultimaAlteracao,
+      'isDeleted': isDeleted ? 1 : 0,
+    };
+  }
+
+  Map<String, dynamic> toJsonServidor() => {
+    'id': id,
+    'idCliente': idCliente,
+    'idUsuario': idUsuario,
+    'totalPedido': totalPedido,
+    'ultimaAlteracao': ultimaAlteracao,
+    'isDeleted': isDeleted ? 1 : 0,
+  };
 }

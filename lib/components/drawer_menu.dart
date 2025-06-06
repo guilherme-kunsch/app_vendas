@@ -1,9 +1,12 @@
+import 'package:app_vendas/models/configuracao.dart';
 import 'package:flutter/material.dart';
 import '../screens/list_client.dart';
 import '../screens/list_produto.dart';
 import '../screens/list_usuario.dart';
 import '../screens/list_pedidos.dart';
 import '../screens/home_screen.dart';
+import '../screens/configuracao_screen.dart';
+import '../screens/sincroniza_dados.dart';
 
 class DrawerCustom extends StatelessWidget {
   const DrawerCustom({super.key});
@@ -73,6 +76,26 @@ class DrawerCustom extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => const ListarPedidosScreen(),
+                  ),
+                ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Configuração'),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ConfiguracaoScreen()),
+                ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.sync),
+            title: const Text('Sincronização'),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SincronizacaoScreen(),
                   ),
                 ),
           ),

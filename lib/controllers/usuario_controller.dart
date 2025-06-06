@@ -1,49 +1,94 @@
 import '../models/usuario.dart';
-import '../services/storage_service.dart';
-import 'package:uuid/uuid.dart';
+import '../services/database_helper.dart';
+import 'package:intl/intl.dart';
 
 class UsuarioController {
-  List<Usuario> usuarios = [];
-
-  final String _arquivo = 'usuarios';
-
-  Future<void> carregarUsuarios() async {
-    final data = await StorageService.readData(_arquivo);
-    usuarios = data.map((e) => Usuario.fromJson(e)).toList();
-  }
-
-  Future<void> salvarUsuarios() async {
-    final data = usuarios.map((u) => u.toJson()).toList();
-    await StorageService.writeData(_arquivo, data);
-  }
-
-  Future<void> adicionarUsuario(String nome, String senha) async {
-    final novoUsuario = Usuario(
-      id: const Uuid().v4(),
-      nome: nome,
-      senha: senha,
+  Future<void> salvarUsuario(Usuario usuario) async {
+    final db = await BancoHelper().db;
+    final existe = await db.query(
+      'Usuario',
+      where: 'id = ?',
+      whereArgs: [usuario.id],
     );
-    usuarios.add(novoUsuario);
-    await salvarUsuarios();
-  }
 
-  Future<void> atualizarUsuario(Usuario usuarioAtualizado) async {
-    final index = usuarios.indexWhere((u) => u.id == usuarioAtualizado.id);
-    if (index != -1) {
-      usuarios[index] = usuarioAtualizado;
-      await salvarUsuarios();
+    if (existe.isEmpty) {
+      await db.insert('Usuario', usuario.toSQL());
+    } else {
+      if (usuario.ultimaAlteracao != '') {
+        final now = DateTime.now().toUtc().subtract(const Duration(hours: 3));
+        usuario.ultimaAlteracao = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+      }
+
+      await db.update(
+        'Usuario',
+        usuario.toSQL(),
+        where: 'id = ?',
+        whereArgs: [usuario.id],
+      );
     }
   }
 
-  Future<void> removerUsuario(String id) async {
-    usuarios.removeWhere((u) => u.id == id);
-    await salvarUsuarios();
+  Future<void> acrescentarUltAlteracao(Usuario usuario) async {
+    final db = await BancoHelper().db;
+
+    final now = DateTime.now().toUtc().subtract(const Duration(hours: 3));
+    usuario.ultimaAlteracao = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+    await db.update(
+      'Usuario',
+      usuario.toSQL(),
+      where: 'id = ?',
+      whereArgs: [usuario.id],
+    );
   }
 
-  Usuario? validarLogin(String nome, String senha) {
-    try {
-      return usuarios.firstWhere((u) => u.nome == nome && u.senha == senha);
-    } catch (e) {
+  Future<void> excluirUsuario(int id) async {
+    final db = await BancoHelper().db;
+    await db.delete('Usuario', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> inativarUsuario(int id) async {
+    final db = await BancoHelper().db;
+    await db.rawUpdate('UPDATE Usuario set isDeleted = 1 where id = ?', [id]);
+  }
+
+  Future<List<Usuario>> listarUsuarios() async {
+    final db = await BancoHelper().db;
+    final maps = await db.query('Usuario', where: 'isDeleted = 0');
+
+    return List.generate(maps.length, (i) => Usuario.fromJson(maps[i]));
+  }
+
+  Future<List<Usuario>> listarAllUsuarios() async {
+    final db = await BancoHelper().db;
+    final maps = await db.query('Usuario');
+
+    return List.generate(maps.length, (i) => Usuario.fromJson(maps[i]));
+  }
+
+  Future<Usuario?> buscarPorId(int id) async {
+    final db = await BancoHelper().db;
+    final maps = await db.query('Usuario', where: 'id = ?', whereArgs: [id]);
+
+    if (maps.isNotEmpty) {
+      return Usuario.fromJson(maps.first);
+    } else {
+      return null;
+    }
+  }
+
+  Future<Usuario?> validarLogin(String nome, String senha) async {
+    final db = await BancoHelper().db;
+
+    final result = await db.query(
+      'Usuario',
+      where: 'nome = ? AND senha = ?',
+      whereArgs: [nome, senha],
+    );
+
+    if (result.isNotEmpty) {
+      return Usuario.fromJson(result.first);
+    } else {
       return null;
     }
   }

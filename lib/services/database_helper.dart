@@ -26,7 +26,7 @@ class BancoHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         tipo TEXT NOT NULL,
-        documento TEXT NOT NULL,
+        cpfCnpj TEXT NOT NULL,
         email TEXT,
         telefone TEXT,
         cep TEXT,
@@ -34,59 +34,69 @@ class BancoHelper {
         bairro TEXT,
         cidade TEXT,
         uf TEXT,
-        dataAlteracao TEXT
+        ultimaAlteracao TEXT,
+        isDeleted BOOL
       )
     ''');
 
     await db.execute('''
       CREATE TABLE Produto (
-        id TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         unidade TEXT NOT NULL,
-        qtdEstoque INTEGER NOT NULL,
+        qtdEstoque REAL NOT NULL,
         precoVenda REAL NOT NULL,
-        status INTEGER NOT NULL,
+        Status INTEGER NOT NULL,
         custo REAL,
         codigoBarra TEXT,
-        dataAlteracao TEXT
+        ultimaAlteracao TEXT,
+        isDeleted BOOL
       );
     ''');
 
     await db.execute('''
       CREATE TABLE Usuario(
-        id TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         senha TEXT NOT NULL,
-        dataAlteracao TEXT
+        ultimaAlteracao TEXT,
+        isDeleted BOOL
       )
     ''');
 
     await db.execute('''
       CREATE TABLE Pedido(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        clienteId INTEGER NOT NULL,
-        usuarioId TEXT NOT NULL,
-        total REAL NOT NULL,
-        dataCriacao TEXT NOT NULL,
-        dataAlteracao TEXT
+        idCliente INTEGER NOT NULL,
+        idUsuario TEXT NOT NULL,
+        totalPedido REAL,
+        ultimaAlteracao TEXT,
+        isDeleted BOOL
       )
     ''');
 
     await db.execute('''
       CREATE TABLE PedidoItem(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        pedidoId INTEGER NOT NULL,
-        produtoId TEXT NOT NULL,
+        idPedido INTEGER NOT NULL,
+        idProduto TEXT NOT NULL,
         quantidade INTEGER NOT NULL,
-        total REAL NOT NULL
+        totalItem REAL NOT NULL
       )
     ''');
 
     await db.execute('''
       CREATE TABLE PedidoPagamento(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        pedidoId INTEGER NOT NULL,
+        idPedido INTEGER NOT NULL,
         valorPagamento REAL NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE Configuracao(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        servidor TEXT NOT NULL
       )
     ''');
   }

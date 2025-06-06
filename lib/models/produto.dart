@@ -1,13 +1,14 @@
 class Produto {
-  String? id;
+  int? id;
   String nome;
   String unidade;
-  int qtdEstoque;
+  double qtdEstoque;
   double precoVenda;
-  int status; // 0 - Ativo, 1 - Inativo
+  int Status; // 0 - Ativo, 1 - Inativo
   double? custo;
   String codigoBarra;
-  String dataAlteracao;
+  String ultimaAlteracao;
+  bool isDeleted;
 
   Produto({
     this.id,
@@ -15,10 +16,11 @@ class Produto {
     required this.unidade,
     required this.qtdEstoque,
     required this.precoVenda,
-    required this.status,
+    required this.Status,
     this.custo,
     required this.codigoBarra,
-    required this.dataAlteracao,
+    required this.ultimaAlteracao,
+    this.isDeleted = false,
   });
 
   factory Produto.fromJson(Map<String, dynamic> json) {
@@ -26,28 +28,28 @@ class Produto {
       id: json['id'],
       nome: json['nome'],
       unidade: json['unidade'],
-      qtdEstoque: json['qtdEstoque'],
+      qtdEstoque: (json['qtdEstoque'] as num).toDouble(),
       precoVenda: (json['precoVenda'] as num).toDouble(),
-      status: json['status'],
+      Status: json['Status'],
       custo: json['custo'] != null ? (json['custo'] as num).toDouble() : null,
       codigoBarra: json['codigoBarra'],
-      dataAlteracao: json['dataAlteracao'],
+      ultimaAlteracao: json['ultimaAlteracao'],
+      isDeleted: (json['isDeleted'] ?? 0) == 1,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'nome': nome,
-      'unidade': unidade,
-      'qtdEstoque': qtdEstoque,
-      'precoVenda': precoVenda,
-      'status': status,
-      'custo': custo,
-      'codigoBarra': codigoBarra,
-      'dataAlteracao': dataAlteracao,
-    };
-  }
+  Map<String, dynamic> toJsonServidor() => {
+    'id': id,
+    'nome': nome,
+    'unidade': unidade,
+    'qtdEstoque': qtdEstoque,
+    'precoVenda': precoVenda,
+    'Status': Status,
+    'custo': custo,
+    'codigoBarra': codigoBarra,
+    'ultimaAlteracao': ultimaAlteracao,
+    'isDeleted': isDeleted ? 1 : 0,
+  };
 
   Map<String, dynamic> toSQL() {
     return {
@@ -56,10 +58,11 @@ class Produto {
       'unidade': unidade,
       'qtdEstoque': qtdEstoque,
       'precoVenda': precoVenda,
-      'status': status,
+      'Status': Status,
       'custo': custo,
       'codigoBarra': codigoBarra,
-      'dataAlteracao': dataAlteracao,
+      'ultimaAlteracao': ultimaAlteracao,
+      'isDeleted': isDeleted ? 1 : 0,
     };
   }
 }

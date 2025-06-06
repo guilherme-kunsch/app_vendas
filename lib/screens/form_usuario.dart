@@ -16,6 +16,7 @@ class _FormUsuarioState extends State<FormUsuario> {
   final _formKey = GlobalKey<FormState>();
   final nomeController = TextEditingController();
   final senhaController = TextEditingController();
+  final ultAtualizacao = TextEditingController();
   final controller = UsuarioController();
 
   @override
@@ -24,23 +25,22 @@ class _FormUsuarioState extends State<FormUsuario> {
     if (widget.usuario != null) {
       nomeController.text = widget.usuario!.nome;
       senhaController.text = widget.usuario!.senha;
+      ultAtualizacao.text = widget.usuario!.ultimaAlteracao;
     }
-    controller.carregarUsuarios();
+    controller.listarUsuarios();
   }
 
   void salvar() async {
     if (_formKey.currentState!.validate()) {
+      if (widget.usuario != null) {}
       final usuario = Usuario(
-        id: widget.usuario?.id ?? '',
+        id: widget.usuario?.id,
         nome: nomeController.text,
         senha: senhaController.text,
+        ultimaAlteracao: ultAtualizacao.text,
       );
 
-      if (widget.usuario != null) {
-        await controller.atualizarUsuario(usuario);
-      } else {
-        await controller.adicionarUsuario(usuario.nome, usuario.senha);
-      }
+      await controller.salvarUsuario(usuario);
 
       if (context.mounted) {
         Navigator.pop(context, true);

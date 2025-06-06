@@ -1,16 +1,17 @@
+import 'package:app_vendas/controllers/pedido_controller.dart';
+import 'package:app_vendas/models/pedido.dart';
 import 'package:flutter/material.dart';
-import 'form_client.dart';
-import 'form_produto.dart';
-import 'form_usuario.dart';
 import 'list_client.dart';
 import 'list_produto.dart';
 import 'list_usuario.dart';
-import 'list_pedidos.dart'; // <-- Import da tela de pedidos
+import 'list_pedidos.dart';
+import 'sincroniza_dados.dart';
+import 'configuracao_screen.dart';
 import '../controllers/cliente_controller.dart';
 import '../controllers/produto_controller.dart';
 import '../controllers/usuario_controller.dart';
 import 'login_screen.dart';
-import '../components/drawer_menu.dart'; // <-- Arquivo Drawer, recomendado
+import '../components/drawer_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,10 +24,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final clienteController = ClienteController();
   final produtoController = ProdutoController();
   final usuarioController = UsuarioController();
+  final pedidoController = PedidoController();
 
   int totalClientes = 0;
   int totalProdutos = 0;
   int totalUsuarios = 0;
+  int totalPedidos = 0;
 
   @override
   void initState() {
@@ -37,12 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _carregarDados() async {
     final clientes = await clienteController.loadClientes();
     final produtos = await produtoController.listarProdutos();
-    await usuarioController.carregarUsuarios();
+    final usuarios = await usuarioController.listarUsuarios();
+    final pedidos = await pedidoController.listarPedidos();
 
     setState(() {
       totalClientes = clientes.length;
       totalProdutos = produtos.length;
-      totalUsuarios = usuarioController.usuarios.length;
+      totalUsuarios = usuarios.length;
+      totalPedidos = pedidos.length;
     });
   }
 
@@ -56,20 +61,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _resumoCard(String label, int total, IconData icon) {
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: const Color(0xFFF0F1F3),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           children: [
-            Icon(icon, size: 30, color: const Color(0xFF00123C)),
+            Icon(icon, size: 35, color: const Color(0xFF00123C)),
             const SizedBox(height: 8),
             Text(
               '$total',
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF00123C),
               ),
@@ -121,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: const DrawerCustom(), // <-- Drawer separado
+      drawer: const DrawerCustom(),
       body: RefreshIndicator(
         onRefresh: _carregarDados,
         child: SingleChildScrollView(
@@ -136,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   _resumoCard('Produtos', totalProdutos, Icons.inventory_2),
                   _resumoCard('Clientes', totalClientes, Icons.people),
                   _resumoCard('Usuários', totalUsuarios, Icons.person),
+                  _resumoCard('Pedidos', totalPedidos, Icons.receipt_long),
                 ],
               ),
               const SizedBox(height: 32),
@@ -162,6 +168,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 'Pedidos',
                 Icons.receipt_long,
                 const ListarPedidosScreen(),
+              ),
+              const SizedBox(height: 16),
+              _menuButton(
+                'Configuração',
+                Icons.settings,
+                const ConfiguracaoScreen(),
+              ),
+              const SizedBox(height: 16),
+              _menuButton(
+                'Sincronizar Dados',
+                Icons.sync,
+                const SincronizacaoScreen(),
               ),
             ],
           ),

@@ -23,6 +23,9 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
 
   Future<void> carregar() async {
     clientes = await controller.loadClientes();
+    for (final cliente in clientes) {
+      print(cliente.toSQL());
+    }
     setState(() {});
   }
 
@@ -47,7 +50,7 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
     );
 
     if (confirm == true) {
-      await controller.excluirCliente(id);
+      await controller.inativarCliente(id);
       await carregar();
     }
   }
@@ -79,7 +82,7 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Clientes Cadastrados')),
+      appBar: AppBar(title: const Text('Clientes')),
       drawer: const DrawerCustom(),
       body:
           clientes.isEmpty
@@ -118,7 +121,7 @@ class _ListarClientesScreenState extends State<ListarClientesScreen> {
                         ),
                       ),
                       subtitle: Text(
-                        '${c.tipo == 'F' ? 'CPF' : 'CNPJ'}: ${c.documento}',
+                        '${c.tipo == 'F' ? 'CPF' : 'CNPJ'}: ${c.cpfCnpj}',
                         style: const TextStyle(color: Colors.black54),
                       ),
                       trailing: IconButton(

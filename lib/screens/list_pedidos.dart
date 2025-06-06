@@ -1,3 +1,4 @@
+import 'package:app_vendas/components/drawer_menu.dart';
 import 'package:flutter/material.dart';
 import '../controllers/pedido_controller.dart';
 import '../models/pedido.dart';
@@ -12,6 +13,7 @@ class ListarPedidosScreen extends StatefulWidget {
 
 class _ListarPedidosScreenState extends State<ListarPedidosScreen> {
   final PedidoController controller = PedidoController();
+  List<Pedido> pedidos = [];
 
   @override
   void initState() {
@@ -20,7 +22,10 @@ class _ListarPedidosScreenState extends State<ListarPedidosScreen> {
   }
 
   Future<void> carregar() async {
-    await controller.carregarPedidos();
+    pedidos = await controller.listarPedidos();
+    for (final ped in pedidos) {
+      print(ped.toJsonServidor());
+    }
     setState(() {});
   }
 
@@ -45,7 +50,7 @@ class _ListarPedidosScreenState extends State<ListarPedidosScreen> {
     );
 
     if (confirm == true) {
-      await controller.removerPedido(id);
+      await controller.inativarPedido(id);
       await carregar();
     }
   }
@@ -74,10 +79,9 @@ class _ListarPedidosScreenState extends State<ListarPedidosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final pedidos = controller.pedidos;
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Pedidos Cadastrados')),
+      appBar: AppBar(title: const Text('Pedidos')),
+      drawer: DrawerCustom(),
       body:
           pedidos.isEmpty
               ? const Center(child: Text('Nenhum pedido cadastrado.'))
@@ -96,32 +100,18 @@ class _ListarPedidosScreenState extends State<ListarPedidosScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ListTile(
-                      title: Text('Pedido #${p.id} - Cliente: ${p.clienteId}'),
+                      title: Text('Pedido #${p.id} - Cliente: ${p.idCliente}'),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Usuário: ${p.usuarioId}'),
-                          Text('Data: ${p.dataCriacao.toLocal()}'),
-                          Text('Total: R\$ ${p.total.toStringAsFixed(2)}'),
-                          const SizedBox(height: 4),
-                          const Text('Itens:'),
-                          for (var item in p.itens)
-                            Text(
-                              '- ${item.nome}: ${item.quantidade} x R\$ ${(item.total / item.quantidade).toStringAsFixed(2)} = R\$ ${item.total.toStringAsFixed(2)}',
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          const SizedBox(height: 4),
-                          const Text('Pagamentos:'),
-                          for (var pag in p.pagamentos)
-                            Text(
-                              '- R\$ ${pag.valorPagamento.toStringAsFixed(2)}',
-                              style: const TextStyle(fontSize: 12),
-                            ),
+                          Text('Usuário: ${p.idUsuario}'),
+                          Text('Data: ${p.ultimaAlteracao}'),
+                          Text('Total: R\$ ${p.totalPedido}'),
                         ],
                       ),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => removerPedido(p.id),
+                        onPressed: () => removerPedido(p.id!),
                       ),
                       onTap: () => editarPedido(p),
                     ),

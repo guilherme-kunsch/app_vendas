@@ -15,6 +15,8 @@ class ListarUsuariosScreen extends StatefulWidget {
 class _ListarUsuariosScreenState extends State<ListarUsuariosScreen> {
   final controller = UsuarioController();
 
+  List<Usuario> usuarios = [];
+
   @override
   void initState() {
     super.initState();
@@ -22,11 +24,14 @@ class _ListarUsuariosScreenState extends State<ListarUsuariosScreen> {
   }
 
   Future<void> carregar() async {
-    await controller.carregarUsuarios();
+    usuarios = await controller.listarUsuarios();
+    for (final usuario in usuarios) {
+      print(usuario.toJsonServidor());
+    }
     setState(() {});
   }
 
-  Future<void> remover(String id) async {
+  Future<void> remover(int id) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder:
@@ -47,8 +52,8 @@ class _ListarUsuariosScreenState extends State<ListarUsuariosScreen> {
     );
 
     if (confirm == true) {
-      await controller.removerUsuario(id);
-      setState(() {});
+      await controller.inativarUsuario(id);
+      await carregar();
     }
   }
 
@@ -59,8 +64,7 @@ class _ListarUsuariosScreenState extends State<ListarUsuariosScreen> {
     );
 
     if (result == true) {
-      await controller.carregarUsuarios();
-      setState(() {});
+      carregar();
     }
   }
 
@@ -71,17 +75,14 @@ class _ListarUsuariosScreenState extends State<ListarUsuariosScreen> {
     );
 
     if (result == true) {
-      await controller.carregarUsuarios();
-      setState(() {});
+      carregar();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final usuarios = controller.usuarios;
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Usuários Cadastrados')),
+      appBar: AppBar(title: const Text('Usuários')),
       drawer: DrawerCustom(),
       body:
           usuarios.isEmpty
@@ -128,7 +129,7 @@ class _ListarUsuariosScreenState extends State<ListarUsuariosScreen> {
                           Icons.delete,
                           color: Color(0xFFDC3002),
                         ),
-                        onPressed: () => remover(u.id),
+                        onPressed: () => remover(u.id!),
                         tooltip: 'Excluir',
                       ),
                       onTap: () => editar(u),

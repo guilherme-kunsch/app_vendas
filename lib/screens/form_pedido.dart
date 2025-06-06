@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../controllers/cliente_controller.dart';
 import '../controllers/pedido_controller.dart';
 import '../controllers/usuario_controller.dart';
@@ -21,7 +20,7 @@ class FormPedido extends StatefulWidget {
 }
 
 class _FormPedidoState extends State<FormPedido> {
-  final PedidoController controller = PedidoController();
+  final PedidoController pedidoController = PedidoController();
   final ClienteController clienteController = ClienteController();
   final UsuarioController usuarioController = UsuarioController();
 
@@ -44,42 +43,32 @@ class _FormPedidoState extends State<FormPedido> {
   }
 
   void carregarDados() async {
-    await usuarioController.carregarUsuarios();
+    usuarios = await usuarioController.listarUsuarios();
     clientes = await clienteController.loadClientes();
 
-    setState(() {
-      usuarios = usuarioController.usuarios;
+    if (widget.pedido != null) {
+      final pedidoCompleto = await pedidoController.buscarPedidoCompleto(
+        widget.pedido!.id!,
+      );
+      final pedido = pedidoCompleto['pedido'] as Pedido;
 
-      if (widget.pedido != null) {
+      setState(() {
         clienteSelecionado = clientes.firstWhere(
-          (c) => c.id == widget.pedido!.clienteId,
-          orElse:
-              () =>
-                  clientes.isNotEmpty
-                      ? clientes.first
-                      : Cliente(
-                        id: 0,
-                        nome: 'N/A',
-                        tipo: 'F',
-                        documento: '',
-                        dataAlteracao: DateTime.now().toIso8601String(),
-                      ),
+          (c) => c.id == pedido.idCliente,
+          orElse: () => clientes.first,
         );
-
         usuarioSelecionado = usuarios.firstWhere(
-          (u) => u.id == widget.pedido!.usuarioId.toString(),
-          orElse:
-              () =>
-                  usuarios.isNotEmpty
-                      ? usuarios.first
-                      : Usuario(id: '', nome: 'N/A', senha: ''),
+          (u) => u.id == pedido.idUsuario,
+          orElse: () => usuarios.first,
         );
 
-        itens = List.from(widget.pedido!.itens);
-        pagamentos = List.from(widget.pedido!.pagamentos);
+        itens = List<PedidoItem>.from(pedidoCompleto['itens']);
+        pagamentos = List<PedidoPagamento>.from(pedidoCompleto['pagamentos']);
         recalcularTotais();
-      }
-    });
+      });
+    } else {
+      setState(() {});
+    }
   }
 
   void adicionarItem() async {
@@ -125,7 +114,7 @@ class _FormPedidoState extends State<FormPedido> {
   }
 
   void recalcularTotais() {
-    totalItens = itens.fold(0.0, (sum, item) => sum + item.total);
+    totalItens = itens.fold(0.0, (sum, item) => sum + item.totalItem);
     totalPagamentos = pagamentos.fold(
       0.0,
       (sum, pag) => sum + pag.valorPagamento,
@@ -144,6 +133,11 @@ class _FormPedidoState extends State<FormPedido> {
       return;
     }
 
+    if (usuarioSelecionado == null) {
+      mostrarErro('Selecione um usuário.');
+      return;
+    }
+
     if (itens.isEmpty) {
       mostrarErro('Adicione pelo menos 1 item.');
       return;
@@ -159,22 +153,15 @@ class _FormPedidoState extends State<FormPedido> {
       return;
     }
 
-    if (usuarioSelecionado == null) {
-      mostrarErro('Selecione um usuário.');
-      return;
-    }
-
     final pedido = Pedido(
-      id: widget.pedido?.id ?? DateTime.now().millisecondsSinceEpoch,
-      clienteId: clienteSelecionado!.id!,
-      usuarioId: usuarioSelecionado!.id,
-      total: totalItens,
-      dataCriacao: DateTime.now(),
-      itens: itens,
-      pagamentos: pagamentos,
+      id: widget.pedido?.id,
+      idCliente: clienteSelecionado!.id!,
+      idUsuario: usuarioSelecionado!.id!,
+      totalPedido: totalItens,
+      ultimaAlteracao: '',
     );
 
-    await controller.adicionarPedido(pedido);
+    await pedidoController.salvarPedidoCompleto(pedido, itens, pagamentos);
 
     if (context.mounted) {
       Navigator.pop(context, true);
@@ -195,41 +182,37 @@ class _FormPedidoState extends State<FormPedido> {
                   : DropdownButtonFormField<Cliente>(
                     value: clienteSelecionado,
                     items:
-                        clientes.map((c) {
-                          return DropdownMenuItem(
-                            value: c,
-                            child: Text('${c.nome} (${c.id})'),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        clienteSelecionado = value;
-                      });
-                    },
+                        clientes
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(c.nome),
+                              ),
+                            )
+                            .toList(),
+                    onChanged:
+                        (value) => setState(() => clienteSelecionado = value),
                     decoration: const InputDecoration(labelText: 'Cliente'),
                   ),
               const SizedBox(height: 12),
-
               usuarios.isEmpty
                   ? const CircularProgressIndicator()
                   : DropdownButtonFormField<Usuario>(
                     value: usuarioSelecionado,
                     items:
-                        usuarios.map((u) {
-                          return DropdownMenuItem(
-                            value: u,
-                            child: Text(u.nome),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        usuarioSelecionado = value;
-                      });
-                    },
+                        usuarios
+                            .map(
+                              (u) => DropdownMenuItem(
+                                value: u,
+                                child: Text(u.nome),
+                              ),
+                            )
+                            .toList(),
+                    onChanged:
+                        (value) => setState(() => usuarioSelecionado = value),
                     decoration: const InputDecoration(labelText: 'Usuário'),
                   ),
               const SizedBox(height: 12),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -253,7 +236,7 @@ class _FormPedidoState extends State<FormPedido> {
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     child: ListTile(
                       title: Text(
-                        'Produto: ${item.nome}, Qtd: ${item.quantidade}, Total: R\$ ${item.total.toStringAsFixed(2)}',
+                        'Produto: ${item.idProduto}, Qtd: ${item.quantidade}, Total: R\$ ${item.totalItem.toStringAsFixed(2)}',
                       ),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
@@ -264,7 +247,6 @@ class _FormPedidoState extends State<FormPedido> {
                 },
               ),
               const SizedBox(height: 12),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -299,25 +281,25 @@ class _FormPedidoState extends State<FormPedido> {
                 },
               ),
               const SizedBox(height: 12),
-
               Text('Total Itens: R\$ ${totalItens.toStringAsFixed(2)}'),
               Text(
                 'Total Pagamentos: R\$ ${totalPagamentos.toStringAsFixed(2)}',
               ),
-
+              Text(
+                'Total Diferença: R\$ ${(totalItens - totalPagamentos).toStringAsFixed(2)}',
+              ),
               const SizedBox(height: 24),
-
               ElevatedButton(
                 onPressed: salvarPedido,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFDC3002),
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
                   padding: const EdgeInsets.symmetric(
                     vertical: 14,
-                    horizontal: 18,
+                    horizontal: 25,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: const Text('Salvar Pedido'),

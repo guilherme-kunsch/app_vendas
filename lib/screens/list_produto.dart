@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/produto_controller.dart';
 import '../models/produto.dart';
 import 'form_produto.dart';
+import '../components/drawer_menu.dart';
 
 class ListarProdutosScreen extends StatefulWidget {
   const ListarProdutosScreen({super.key});
@@ -22,11 +23,14 @@ class _ListarProdutosScreenState extends State<ListarProdutosScreen> {
 
   Future<void> carregarProdutos() async {
     produtos = await controller.listarProdutos();
+    for (final prod in produtos) {
+      print(prod.toJsonServidor());
+    }
     setState(() {});
   }
 
-  void excluirProduto(String id) async {
-    await controller.removerProduto(id);
+  void excluirProduto(int id) async {
+    await controller.inativarProduto(id);
     await carregarProdutos();
   }
 
@@ -50,6 +54,7 @@ class _ListarProdutosScreenState extends State<ListarProdutosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Produtos')),
+      drawer: const DrawerCustom(),
       body:
           produtos.isEmpty
               ? const Center(child: Text('Nenhum produto cadastrado.'))

@@ -25,26 +25,34 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _carregarUsuarios() async {
-    await _usuarioController.carregarUsuarios();
+    await _usuarioController.listarUsuarios();
     setState(() {
       _carregando = false;
     });
   }
 
-  void _fazerLogin() {
+  void _fazerLogin() async {
     if (_formKey.currentState!.validate()) {
       final nome = _nomeController.text;
       final senha = _senhaController.text;
 
-      if (_usuarioController.usuarios.isEmpty &&
-          nome == 'admin' &&
-          senha == 'admin') {
-        _navegarParaHome();
-        return;
+      // Verifica se existe algum usuário cadastrado
+      final usuarios = await _usuarioController.listarUsuarios();
+
+      if (usuarios.isEmpty) {
+        if (nome == 'admin' && senha == 'admin') {
+          _navegarParaHome();
+          return;
+        } else {
+          _mostrarErro('Usuário ou senha inválidos');
+          return;
+        }
       }
 
-      final usuario = _usuarioController.validarLogin(nome, senha);
-      if (usuario != null && usuario.id.isNotEmpty) {
+      // Se há usuários, valida no banco
+      final usuario = await _usuarioController.validarLogin(nome, senha);
+
+      if (usuario != null) {
         _navegarParaHome();
       } else {
         _mostrarErro('Usuário ou senha inválidos');

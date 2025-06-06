@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import '../controllers/produto_controller.dart';
 import '../models/produto.dart';
@@ -42,15 +44,15 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         id: _produtoSelecionado?.id, // Corrigido aqui
         nome: _nomeController.text,
         unidade: _unidadeController.text,
-        qtdEstoque: int.parse(_qtdEstoqueController.text),
+        qtdEstoque: double.parse(_qtdEstoqueController.text),
         precoVenda: double.parse(_precoVendaController.text),
-        status: _status,
+        Status: _status,
         custo:
             _custoController.text.isNotEmpty
                 ? double.parse(_custoController.text)
                 : null,
         codigoBarra: _codigoBarraController.text,
-        dataAlteracao: DateTime.now().toIso8601String(),
+        ultimaAlteracao: '',
       );
 
       if (_produtoSelecionado == null) {
@@ -70,15 +72,15 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     _unidadeController.text = produto.unidade;
     _qtdEstoqueController.text = produto.qtdEstoque.toString();
     _precoVendaController.text = produto.precoVenda.toString();
-    _status = produto.status;
+    _status = produto.Status;
     _custoController.text = produto.custo?.toString() ?? '';
     _codigoBarraController.text = produto.codigoBarra;
     setState(() {});
   }
 
-  void _remover(String? id) async {
+  void _remover(int? id) async {
     if (id != null) {
-      await _controller.removerProduto(id);
+      await _controller.inativarProduto(id);
       _limparCampos();
       setState(() {});
     }

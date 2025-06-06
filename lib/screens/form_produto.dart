@@ -20,6 +20,7 @@ class _FormProdutoState extends State<FormProduto> {
   final qtdEstoqueController = TextEditingController();
   final precoVendaController = TextEditingController();
   final custoController = TextEditingController();
+  final ultAtualizacaoController = TextEditingController();
   final codigoBarraController = TextEditingController();
 
   int status = 0;
@@ -33,9 +34,11 @@ class _FormProdutoState extends State<FormProduto> {
       unidadeController.text = p.unidade;
       qtdEstoqueController.text = p.qtdEstoque.toString();
       precoVendaController.text = p.precoVenda.toString();
-      custoController.text = p.custo?.toString() ?? '';
+      custoController.text = p.custo.toString();
+      precoVendaController.text = p.precoVenda.toString();
+      ultAtualizacaoController.text = p.ultimaAlteracao;
       codigoBarraController.text = p.codigoBarra;
-      status = p.status;
+      status = p.Status;
     }
   }
 
@@ -45,15 +48,12 @@ class _FormProdutoState extends State<FormProduto> {
         id: widget.produto?.id,
         nome: nomeController.text,
         unidade: unidadeController.text,
-        qtdEstoque: int.parse(qtdEstoqueController.text),
+        qtdEstoque: double.parse(qtdEstoqueController.text),
         precoVenda: double.parse(precoVendaController.text),
-        status: status,
-        custo:
-            custoController.text.isNotEmpty
-                ? double.parse(custoController.text)
-                : null,
+        Status: status,
+        custo: double.parse(custoController.text),
         codigoBarra: codigoBarraController.text,
-        dataAlteracao: DateTime.now().toIso8601String(),
+        ultimaAlteracao: ultAtualizacaoController.text,
       );
 
       await controller.salvarProduto(produto);

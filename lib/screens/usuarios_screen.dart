@@ -14,8 +14,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
   final _senhaController = TextEditingController();
+  List<Usuario> usuarios = [];
 
-  String? _idEdicao;
+  int? _idEdicao;
 
   @override
   void initState() {
@@ -24,25 +25,20 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
   }
 
   Future<void> _carregar() async {
-    await _controller.carregarUsuarios();
+    usuarios = await _controller.listarUsuarios();
     setState(() {});
   }
 
   Future<void> _salvar() async {
     if (_formKey.currentState!.validate()) {
-      if (_idEdicao == null) {
-        await _controller.adicionarUsuario(
-          _nomeController.text,
-          _senhaController.text,
-        );
-      } else {
-        final usuario = Usuario(
-          id: _idEdicao!,
-          nome: _nomeController.text,
-          senha: _senhaController.text,
-        );
-        await _controller.atualizarUsuario(usuario);
-      }
+      final usuario = Usuario(
+        id: _idEdicao!,
+        nome: _nomeController.text,
+        senha: _senhaController.text,
+        ultimaAlteracao: '',
+      );
+      await _controller.salvarUsuario(usuario);
+
       _limparFormulario();
       await _carregar();
     }
@@ -63,8 +59,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     });
   }
 
-  Future<void> _remover(String id) async {
-    await _controller.removerUsuario(id);
+  Future<void> _remover(int id) async {
+    await _controller.inativarUsuario(id);
     await _carregar();
   }
 
@@ -110,9 +106,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
             Divider(),
             Expanded(
               child: ListView.builder(
-                itemCount: _controller.usuarios.length,
+                itemCount: usuarios.length,
                 itemBuilder: (context, index) {
-                  final usuario = _controller.usuarios[index];
+                  final usuario = usuarios[index];
                   return ListTile(
                     title: Text(usuario.nome),
                     subtitle: Text('ID: ${usuario.id}'),
@@ -125,7 +121,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                         ),
                         IconButton(
                           icon: Icon(Icons.delete),
-                          onPressed: () => _remover(usuario.id),
+                          onPressed: () => _remover(usuario.id!),
                         ),
                       ],
                     ),

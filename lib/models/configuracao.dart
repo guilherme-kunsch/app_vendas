@@ -1,13 +1,11 @@
 class Configuracao {
-  String linkServidor;
+  int id;
+  String servidor;
 
-  Configuracao({required this.linkServidor});
+  Configuracao({required this.id, required this.servidor});
 
-  factory Configuracao.fromJson(Map<String, dynamic> json) {
-    return Configuracao(linkServidor: json['linkServidor']);
-  }
+  Map<String, dynamic> toMap() => {'id': id, 'servidor': servidor};
 
-  Map<String, dynamic> toJson() {
-    return {'linkServidor': linkServidor};
-  }
+  factory Configuracao.fromMap(Map<String, dynamic> map) =>
+      Configuracao(id: map['id'], servidor: map['servidor']);
 }

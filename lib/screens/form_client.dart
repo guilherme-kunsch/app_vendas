@@ -23,6 +23,7 @@ class _CadastroClienteScreenState extends State<CadastroClienteScreen> {
   final enderecoController = TextEditingController();
   final bairroController = TextEditingController();
   final cidadeController = TextEditingController();
+  final ultAtualizacao = TextEditingController();
   final ufController = TextEditingController();
 
   @override
@@ -31,7 +32,7 @@ class _CadastroClienteScreenState extends State<CadastroClienteScreen> {
     if (widget.cliente != null) {
       nomeController.text = widget.cliente!.nome;
       tipoController.text = widget.cliente!.tipo;
-      documentoController.text = widget.cliente!.documento;
+      documentoController.text = widget.cliente!.cpfCnpj;
       emailController.text = widget.cliente!.email ?? '';
       telefoneController.text = widget.cliente!.telefone ?? '';
       cepController.text = widget.cliente!.cep ?? '';
@@ -39,6 +40,7 @@ class _CadastroClienteScreenState extends State<CadastroClienteScreen> {
       bairroController.text = widget.cliente!.bairro ?? '';
       cidadeController.text = widget.cliente!.cidade ?? '';
       ufController.text = widget.cliente!.uf ?? '';
+      ultAtualizacao.text = widget.cliente!.ultimaAlteracao ?? '';
     }
   }
 
@@ -47,7 +49,7 @@ class _CadastroClienteScreenState extends State<CadastroClienteScreen> {
       id: widget.cliente?.id,
       nome: nomeController.text,
       tipo: tipoController.text,
-      documento: documentoController.text,
+      cpfCnpj: documentoController.text,
       email: emailController.text,
       telefone: telefoneController.text,
       cep: cepController.text,
@@ -55,7 +57,8 @@ class _CadastroClienteScreenState extends State<CadastroClienteScreen> {
       bairro: bairroController.text,
       cidade: cidadeController.text,
       uf: ufController.text,
-      dataAlteracao: DateTime.now().toIso8601String(),
+      ultimaAlteracao: ultAtualizacao.text,
+      isDeleted: false,
     );
 
     await controller.salvarCliente(cliente);

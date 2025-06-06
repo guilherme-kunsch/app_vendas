@@ -18,6 +18,7 @@ class _FormPedidoItemState extends State<FormPedidoItem> {
   Produto? produtoSelecionado;
 
   final quantidadeController = TextEditingController();
+  final precoVendaController = TextEditingController();
 
   @override
   void initState() {
@@ -42,7 +43,6 @@ class _FormPedidoItemState extends State<FormPedidoItem> {
 
   void salvar() {
     final produtoId = produtoSelecionado!.id;
-    final nome = produtoSelecionado!.nome;
     final quantidade = double.tryParse(quantidadeController.text);
 
     if (produtoId == null || quantidade == null) {
@@ -59,14 +59,14 @@ class _FormPedidoItemState extends State<FormPedidoItem> {
       return;
     }
 
-    final total = quantidade * 10; // Exemplo de preço fixo
+    final total =
+        quantidade * produtoSelecionado!.precoVenda; // Exemplo de preço fixo
 
     final item = PedidoItem(
       id: widget.item?.id ?? DateTime.now().millisecondsSinceEpoch,
-      nome: nome,
-      produtoId: produtoId,
+      idProduto: produtoId,
       quantidade: quantidade,
-      total: total,
+      totalItem: total,
     );
 
     Navigator.pop(context, item);

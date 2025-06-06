@@ -1,31 +1,35 @@
 class PedidoItem {
   int id;
-  String produtoId;
-  String? nome;
+  int? idPedido;
+  int? idProduto;
   double quantidade;
-  double total;
+  double totalItem;
+  bool isDeleted;
 
   PedidoItem({
     required this.id,
-    required this.produtoId,
-    required this.nome,
+    this.idPedido,
+    required this.idProduto,
     required this.quantidade,
-    required this.total,
+    required this.totalItem,
+    this.isDeleted = false,
   });
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toSQL() => {
     'id': id,
-    'nome': nome,
-    'produtoId': produtoId,
+    'idPedido': idPedido,
+    'idProduto': idProduto,
     'quantidade': quantidade,
-    'total': total,
+    'totalItem': totalItem,
+    'isDeleted': isDeleted ? 1 : 0,
   };
 
   factory PedidoItem.fromJson(Map<String, dynamic> json) => PedidoItem(
     id: json['id'],
-    nome: json['nome'] ?? '',
-    produtoId: json['produtoId'] ?? '',
-    quantidade: json['quantidade'],
-    total: json['total'],
+    idPedido: int.parse(json['idPedido'].toString()),
+    idProduto: int.parse(json['idProduto'].toString()),
+    quantidade: json['quantidade'].toDouble(),
+    totalItem: json['totalItem'].toDouble(),
+    isDeleted: json['isDeleted'] == 1,
   );
 }
